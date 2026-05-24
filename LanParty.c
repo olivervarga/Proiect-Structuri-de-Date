@@ -1,5 +1,6 @@
 #include "LanParty.h"
 
+// --- Task 1 Functions ---
 void addAtBeginning(Node** head, Teams t) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->team = t;
@@ -38,151 +39,97 @@ void removeLowest(Node** head) {
     }
 }
 
-Queue *createQueue () {
-    Queue *q = (Queue*) malloc (sizeof (Queue));
-    if (q == NULL) return NULL;
+// --- Task 2 Functions ---
+Queue* createQueue() {
+    Queue* q = (Queue*)malloc(sizeof(Queue));
     q->front = q->rear = NULL;
     return q;
 }
 
-int isEmpty (Queue *q) {
-    return (q == NULL || q->front == NULL);
-}
-
-void enQueue (Queue *q, Teams *t) {
-    if (q == NULL || t == NULL) return;
-    t->next = NULL;
+void enqueue(Queue* q, Match m) {
+    QueueNode* newNode = (QueueNode*)malloc(sizeof(QueueNode));
+    newNode->match = m;
+    newNode->next = NULL;
     if (q->rear == NULL) {
-        q->rear = t;
-    } else {
-        (q->rear)->next = t;
-        (q->rear) = t;
+        q->front = q->rear = newNode;
+        return;
     }
-    if (q->front == NULL) 
-        q->front = q->rear;
+    q->rear->next = newNode;
+    q->rear = newNode;
 }
 
-Teams* deQueue (Queue *q) {
-    if (isEmpty (q)) return NULL;
-    Teams *aux = q->front;
+Match dequeue(Queue* q) {
+    if (q->front == NULL) {
+        Match emptyMatch = {0};
+        return emptyMatch;
+    }
+    QueueNode* temp = q->front;
+    Match m = temp->match;
     q->front = q->front->next;
+    
     if (q->front == NULL) {
         q->rear = NULL;
     }
-    aux->next = NULL; 
-    return aux;
+    free(temp);
+    return m;
 }
 
-void printQueueTeams (FILE *f, Queue *q, int round) {
-    if (q == NULL || q->front == NULL) return;
-    Teams *temp = q->front;
-    fprintf (f, "\n--- ROUND NO:%d\n", round);
-    while (temp != NULL && temp->next != NULL) {
-        fprintf (f, "%-33s-%33s\n", temp->name, temp->next->name);
-        temp = temp->next->next;
+int isEmptyQueue(Queue* q) {
+    return (q->front == NULL);
+}
+
+void push(StackNode** top, Teams t) {
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    newNode->team = t;
+    newNode->next = *top;
+    *top = newNode;
+}
+
+Teams pop(StackNode** top) {
+    if (*top == NULL) {
+        Teams emptyTeam = {0};
+        return emptyTeam;
     }
+    StackNode* temp = *top;
+    Teams t = temp->team;
+    *top = (*top)->next;
+    free(temp);
+    return t;
 }
 
-Stack *createStack () {
-    Stack *s = (Stack*) malloc (sizeof (Stack));
-    if (s == NULL) return NULL;
-    s->top = NULL;
-    return s;
+int isEmptyStack(StackNode* top) {
+    return (top == NULL);
 }
 
-int isEmptyStack (Stack *s) {
-    return (s == NULL || s->top == NULL);
-}
+// --- Task 3 Functions ---
+BSTNode* insertBST(BSTNode* root, Teams team) {
+    if (root == NULL) {
+        BSTNode* newNode = (BSTNode*)malloc(sizeof(BSTNode));
+        newNode->team = team;
+        newNode->left = newNode->right = NULL;
+        return newNode;
+    }
 
-void push (Stack *s, Teams *t) {
-    if (s == NULL || t == NULL) return;
-    t->next = s->top;
-    s->top = t;
-}
-
-Teams *pop (Stack *s) {
-    if (isEmptyStack (s)) return NULL;
-    Teams *temp = s->top;
-    s->top = s->top->next;
-    temp->next = NULL;
-    return temp;
-}
-
-void runRound (Queue *q, Stack *winnerStack, Stack *loserStack) {
-    if (isEmpty (q)) return;
-    while (!isEmpty (q)) {
-        Teams *t1 = deQueue (q);
-        Teams *t2 = deQueue (q);
-        if (t1 == NULL || t2 == NULL) return;
-
-        if (t1->score > t2->score) {
-            t1->score += 1.0f;
-            for (int i=0; i < t1->number_of_players; i++) {
-                t1->players[i].points++;
-            }
-            push (winnerStack, t1);
-            push (loserStack, t2);
+    if (team.score < root->team.score) {
+        root->left = insertBST(root->left, team);
+    } else if (team.score > root->team.score) {
+        root->right = insertBST(root->right, team);
+    } else {
+        // Dacă scorurile sunt egale, ordonăm descrescător după nume
+        if (strcmp(team.name, root->team.name) < 0) {
+            root->left = insertBST(root->left, team);
         } else {
-            t2->score += 1.0f;
-            for (int i=0; i < t2->number_of_players; i++) {
-                t2->players[i].points++;
-            }
-            push (winnerStack, t2);
-            push (loserStack, t1);
+            root->right = insertBST(root->right, team);
         }
     }
+    return root;
 }
 
-void freeLoserStack (Stack *loserStack) {
-    if (loserStack == NULL) return;
-    while (!isEmptyStack (loserStack)) {
-        Teams *t = pop (loserStack);
-        if (t != NULL) {
-            free (t->name);
-            for (int i=0; i < t->number_of_players; i++) {
-                free (t->players[i].FirstName);
-                free (t->players[i].SecondName);
-            }
-            free (t->players);
-            free (t);
-        }
-    }
-}
-
-void moveWinners (Stack *winnerStack, Queue *q) {
-    while (!isEmptyStack (winnerStack)) {
-        Teams *winner = pop (winnerStack);
-        enQueue (q, winner);
-    }
-}
-
-void printStackTeams (FILE *f, Stack *s, int round) {
-    if (s == NULL || s->top == NULL) return;
-    fprintf(f, "\nWINNERS OF ROUND NO:%d\n", round);
-    Teams *temp = s->top;
-    while (temp != NULL) {
-        fprintf(f, "%-34s-  %.2f\n", temp->name, temp->score);
-        temp = temp->next;
-    }
-}
-
-Teams *copyTeam (Teams *original) {
-    if (original == NULL) return NULL;
-    Teams *clona = (Teams*) malloc (sizeof (Teams));
-    clona->name = (char*) malloc ((strlen (original->name) + 1) * sizeof (char));
-    strcpy (clona->name, original->name);
-    clona->score = original->score;
-    clona->number_of_players = original->number_of_players;
+void printBSTDesc(BSTNode* root, FILE* f) {
+    if (root == NULL) return;
     
-    clona->players = (Player*) malloc (original->number_of_players * sizeof (Player));
-    
-    for (int i=0; i < original->number_of_players; i++) {
-        clona->players[i].FirstName = (char*) malloc ((strlen (original->players[i].FirstName) + 1) * sizeof (char));
-        strcpy(clona->players[i].FirstName, original->players[i].FirstName);
-        clona->players[i].SecondName = (char*) malloc ((strlen (original->players[i].SecondName) + 1) * sizeof (char));
-        strcpy(clona->players[i].SecondName, original->players[i].SecondName);
-        clona->players[i].points = original->players[i].points;
-    }
-    clona->next = NULL;
-    return clona;
+    // Parcurgere Dreapta-Rădăcină-Stânga pentru afișare descrescătoare
+    printBSTDesc(root->right, f);
+    fprintf(f, "%-34s-  %.2f\n", root->team.name, root->team.score);
+    printBSTDesc(root->left, f);
 }

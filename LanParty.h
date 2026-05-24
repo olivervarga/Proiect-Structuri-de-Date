@@ -13,40 +13,56 @@ typedef struct Teams {
     int number_of_players;
     float score;
     Player* players;
-    struct Teams* next;
 } Teams;
 
+// Node for Linked List (Task 1)
 typedef struct Node {
     Teams team;
     struct Node* next;
 } Node;
 
-struct Q {
-    Teams *front, *rear;
-};
-typedef struct Q Queue;
+// Data structures for Task 2
+typedef struct Match {
+    Teams team1;
+    Teams team2;
+} Match;
 
-struct s {
-    Teams *top;
-};
-typedef struct s Stack;
+typedef struct QueueNode {
+    Match match;
+    struct QueueNode* next;
+} QueueNode;
 
+typedef struct Queue {
+    QueueNode* front;
+    QueueNode* rear;
+} Queue;
+
+typedef struct StackNode {
+    Teams team;
+    struct StackNode* next;
+} StackNode;
+
+// Data structure for Task 3 (BST)
+typedef struct BSTNode {
+    Teams team;
+    struct BSTNode* left;
+    struct BSTNode* right;
+} BSTNode;
+
+// Function prototypes - Task 1
 void addAtBeginning(Node** head, Teams t);
 void removeLowest(Node** head);
 
-Queue *createQueue ();
-int isEmpty (Queue *q);
-void enQueue (Queue *q, Teams *t);
-Teams* deQueue (Queue *q);
-void printQueueTeams (FILE *f, Queue *q, int round);
+// Function prototypes - Task 2 (Queue & Stack)
+Queue* createQueue();
+void enqueue(Queue* q, Match m);
+Match dequeue(Queue* q);
+int isEmptyQueue(Queue* q);
 
-Stack *createStack ();
-int isEmptyStack (Stack *s);
-void push (Stack *s, Teams *t);
-Teams *pop (Stack *s);
+void push(StackNode** top, Teams t);
+Teams pop(StackNode** top);
+int isEmptyStack(StackNode* top);
 
-void runRound (Queue *q, Stack *winnerStack, Stack *loserStack);
-void freeLoserStack (Stack *loserStack);
-void moveWinners (Stack *winnerStack, Queue *q);
-void printStackTeams (FILE *f, Stack *s, int round);
-Teams *copyTeam (Teams *original);
+// Function prototypes - Task 3 (BST)
+BSTNode* insertBST(BSTNode* root, Teams team);
+void printBSTDesc(BSTNode* root, FILE* f);
