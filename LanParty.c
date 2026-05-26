@@ -1,6 +1,5 @@
 #include "LanParty.h"
 
-// --- Task 1 Functions ---
 void addAtBeginning(Node** head, Teams t) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->team = t;
@@ -39,7 +38,6 @@ void removeLowest(Node** head) {
     }
 }
 
-// --- Task 2 Functions ---
 Queue* createQueue() {
     Queue* q = (Queue*)malloc(sizeof(Queue));
     q->front = q->rear = NULL;
@@ -101,7 +99,6 @@ int isEmptyStack(StackNode* top) {
     return (top == NULL);
 }
 
-// --- Task 3 Functions ---
 BSTNode* insertBST(BSTNode* root, Teams team) {
     if (root == NULL) {
         BSTNode* newNode = (BSTNode*)malloc(sizeof(BSTNode));
@@ -115,7 +112,7 @@ BSTNode* insertBST(BSTNode* root, Teams team) {
     } else if (team.score > root->team.score) {
         root->right = insertBST(root->right, team);
     } else {
-        // Dacă scorurile sunt egale, ordonăm descrescător după nume
+
         if (strcmp(team.name, root->team.name) < 0) {
             root->left = insertBST(root->left, team);
         } else {
@@ -127,8 +124,7 @@ BSTNode* insertBST(BSTNode* root, Teams team) {
 
 void printBSTDesc(BSTNode* root, FILE* f) {
     if (root == NULL) return;
-    
-    // Parcurgere Dreapta-Rădăcină-Stânga pentru afișare descrescătoare
+
     printBSTDesc(root->right, f);
     fprintf(f, "%-34s-  %.2f\n", root->team.name, root->team.score);
     printBSTDesc(root->left, f);
