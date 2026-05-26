@@ -1,0 +1,10 @@
+lanParty
+a.out
+app
+*.zip
+date/
+out/
+rezultate/
+COLORTERM*
+WSL2_GUI_APPS_ENABLED*
+d.in
